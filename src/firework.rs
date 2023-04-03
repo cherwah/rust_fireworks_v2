@@ -1,3 +1,8 @@
+use crate::Model;
+use rand::Rng;        // RNG traits
+use rand::thread_rng; // to return an instance of a RNG
+use core::f32;
+
 pub struct Firework {
     // actual coordinates
     x: f32,
@@ -24,12 +29,12 @@ pub struct Firework {
     target_radius: f32 
 }
 
-impl Firework {
+pub impl Firework {
     // create firework
-    pub fn new(sx: f32, sy: f32, tx: f32, ty: f32, trail_len: i32, 
+    pub fn new(&mut self, sx: f32, sy: f32, tx: f32, ty: f32, trail_len: i32, 
         hue: f32, rng: &mut ThreadRng) -> Self {
         // distance for firework to reach target point
-        let dist_to_target:f32 = compute_dist(sx, sy, tx, ty);
+        let dist_to_target:f32 = self.compute_dist(sx, sy, tx, ty);
         
         // determine the angle to shoot firework to target point
         let x_diff = tx - sx;
@@ -64,7 +69,7 @@ impl Firework {
         }
     }
 
-    fn update(&mut self, &mut model:Model) 
+    pub fn update(&mut self, model:&mut Model) 
     {
         let firework = &mut model.fireworks[i];
 
@@ -89,7 +94,7 @@ impl Firework {
         let vy = firework.angle.sin() * firework.speed;
 
         // determine how far have the firework has traveled with velocities applied
-        firework.dist_traveled = compute_dist( firework.sx, firework.sy,
+        firework.dist_traveled = self.compute_dist( firework.sx, firework.sy,
             firework.x + vx, firework.y + vy);
 
         // if the distance traveled is greater than the initial distance to target, 
@@ -103,6 +108,17 @@ impl Firework {
             firework.y += vy;
         }
     }
+
+
+    // calculate euclidean distance
+    pub fn compute_dist(&mut self, p1x: f32, p1y: f32, p2x: f32, p2y: f32) -> f32 {
+        let x_dist = p1x - p2x;
+        let y_dist = p1y - p2y;
+
+        let sq_dist = f32::powf(x_dist, 2.0) + f32::powf(y_dist, 2.0);
+        return (sq_dist as f32).sqrt();
+    }
+
 }
 
 
