@@ -1,7 +1,10 @@
 use crate::Model;
-use rand::Rng;        // RNG traits
-use rand::thread_rng; // to return an instance of a RNG
+use crate::Particle;
+
+use rand::Rng;
+use rand::rngs::ThreadRng;
 use core::f32;
+
 
 pub struct Firework {
     // actual coordinates
@@ -23,7 +26,6 @@ pub struct Firework {
     angle: f32,
     speed: f32,
     acceleration: f32,
-    _hue: f32,
     brightness: f32,
     // circle target indicator radius
     target_radius: f32 
@@ -31,8 +33,8 @@ pub struct Firework {
 
 impl Firework {
     // create firework
-    pub fn new(&mut self, sx: f32, sy: f32, tx: f32, ty: f32, trail_len: i32, 
-        hue: f32, rng: &mut ThreadRng) -> Self {
+    pub fn new(&mut self, sx: f32, sy: f32, tx: f32, ty: f32, 
+        trail_len: i32, rng: &mut ThreadRng) -> Self {
         // distance for firework to reach target point
         let dist_to_target:f32 = self.compute_dist(sx, sy, tx, ty);
         
@@ -63,13 +65,12 @@ impl Firework {
             angle: y_diff.atan2(x_diff),
             speed: 2.0,
             acceleration: 1.05,
-            _hue: rng.gen_range((hue - hue_swing)..(hue + hue_swing)),
             brightness: rng.gen_range(0.5..0.7),
             target_radius: 1.0
         }
     }
 
-    pub fn update(&mut self, model:&mut Model) 
+    pub fn update(&mut self, i:usize, model:&mut Model) 
     {
         let firework = &mut model.fireworks[i];
 
@@ -100,7 +101,7 @@ impl Firework {
         // if the distance traveled is greater than the initial distance to target, 
         // then target has been reached
         if firework.dist_traveled >= firework.dist_to_target {
-            create_particles(firework.tx, firework.ty, 100, model);
+            Particle::create_particles(firework.tx, firework.ty, 100, model);
             model.fireworks.remove(i);
         } else {
             // target not reached, keep traveling
