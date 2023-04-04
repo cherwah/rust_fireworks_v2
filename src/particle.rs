@@ -1,6 +1,7 @@
 use crate::Model;
 use rand::Rng;
 use rand::rngs::ThreadRng;
+use nannou::prelude::*;
 
 
 pub struct Particle {
@@ -50,8 +51,41 @@ impl Particle {
             decay: rng.gen_range(0.015..0.03)
         }
     }
+
+    pub fn draw(&mut self, draw:&Draw, i:usize, model:&Model) {
+        let particle = &model.particles[i];
     
-    pub fn create_particles(x: f32, y: f32, n_particles: i32, model: &mut Model) {
+        let last = particle.coords.len() - 1;
+        draw.line()
+            .start(pt2(particle.coords[last][0], particle.coords[last][1]))
+            .end(pt2(particle.x, particle.y))
+            .weight(1.0)
+            .hsla(particle.hue, 1.0, particle.brightness, particle.alpha);
+    }
+
+    pub fn update(&mut self, i:usize, model: &mut Model) {
+        let particle = &mut model.particles[i];
+    
+        // remove last item in coordinates array
+        particle.coords.pop();
+        // add current coordinates to the start of the array
+        particle.coords.insert(0, [particle.x, particle.y]);
+        // slow down the particle
+        particle.speed *= particle.friction;    
+         // // apply velocity
+        particle.x += particle.angle.cos() * particle.speed;
+        particle.y += particle.angle.sin() * particle.speed - particle.gravity;
+    
+        // fade out the particle
+        particle.alpha -= particle.decay;
+        
+        // remove the particle once the alpha is low enough
+        if particle.alpha <= particle.decay {
+            model.particles.remove(i);
+        }
+    }
+
+    pub fn create(&mut self, x: f32, y: f32, n_particles: i32, model: &mut Model) {
         for _ in 0..n_particles {
             model.particles.push(Particle::new(x, y, model.hue, 5, &mut model.rng));
         }

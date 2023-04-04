@@ -1,6 +1,7 @@
 use crate::Model;
 use crate::Particle;
 
+use nannou::prelude::*;
 use rand::Rng;
 use rand::rngs::ThreadRng;
 use core::f32;
@@ -42,15 +43,13 @@ impl Firework {
         let x_diff = tx - sx;
         let y_diff = ty - sy;
         
-        // store last 3 coordinates to simulate a trail
+        // store last k coordinates to simulate a trail
         // to hit the pulsing circle
         let mut coords:Vec<[f32; 2]> = Vec::new();
 
         for _ in 0..trail_len {
             coords.push([sx, sy]);
         }
-
-        let hue_swing = 0.15;
 
         return Firework {
             x: sx, 
@@ -101,13 +100,26 @@ impl Firework {
         // if the distance traveled is greater than the initial distance to target, 
         // then target has been reached
         if firework.dist_traveled >= firework.dist_to_target {
-            Particle::create_particles(firework.tx, firework.ty, 100, model);
+            Particle::create(firework.tx, firework.ty, 100, model);
             model.fireworks.remove(i);
         } else {
             // target not reached, keep traveling
             firework.x += vx;
             firework.y += vy;
         }
+    }
+
+    pub fn create(&mut self, x: f32, y: f32, model: &mut Model) {
+        // nannou's origin (0, 0) is at center of screen
+        model.fireworks.push(Firework::new(
+            0.0,                        // center of screen
+            -((model.win_height >> 1) as f32),   // bottom of screen
+            x,
+            y,  // upper part of the screen  
+            5,  // trail_len
+            model.hue,
+            &mut model.rng
+        ));
     }
 
     // calculate euclidean distance

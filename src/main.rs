@@ -1,8 +1,7 @@
 use nannou::prelude::*;
 use nannou::event::WindowEvent;
 
-use rand::Rng;        // RNG traits
-use rand::thread_rng; // to return an instance of a RNG
+use rand::{Rng, rngs::ThreadRng};
 
 mod firework;
 mod particle;
@@ -18,36 +17,43 @@ fn main() {
         .run();
 }
 
-struct Model {
-    win_id: window::Id,
+pub struct Model {
     win_width: u32,
     win_height: u32,
     fireworks: Vec<Firework>,
     particles: Vec<Particle>,
     timer_total: u8,
-    timer_tick: u8
+    timer_tick: u8,
+    hue: f32,
+    rng: ThreadRng
 }
 
 fn model(app: &App) -> Model {
+    // dimension for our graphics window
     let win_width: u32 = 1024;
     let win_height: u32 = 768;
 
-    let win_id = app.new_window()
+    // create a new graphics window
+    app.new_window()
         .size(win_width, win_height)
         .title("Fireworks")
         .build()
         .unwrap();
 
+    // random generator
+    let mut rng = rand::thread_rng();
+
     // our model stores program states as such the
     // current particles and fireworks
     return Model {
-        win_id,
         win_width,   
-        win_height,     
+        win_height,         
         fireworks: Vec::new(),
         particles: Vec::new(),
         timer_total: 5,
-        timer_tick: 0
+        timer_tick: 0,
+        hue: rng.gen_range(0.0..=1.0),
+        rng
     }
 }
 
