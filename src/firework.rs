@@ -29,7 +29,7 @@ pub struct Firework {
     target_radius: f32 
 }
 
-pub impl Firework {
+impl Firework {
     // create firework
     pub fn new(&mut self, sx: f32, sy: f32, tx: f32, ty: f32, trail_len: i32, 
         hue: f32, rng: &mut ThreadRng) -> Self {
@@ -108,7 +108,6 @@ pub impl Firework {
             firework.y += vy;
         }
     }
-
 
     // calculate euclidean distance
     pub fn compute_dist(&mut self, p1x: f32, p1y: f32, p2x: f32, p2y: f32) -> f32 {
