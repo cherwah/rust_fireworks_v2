@@ -34,10 +34,10 @@ pub struct Firework {
 
 impl Firework {
     // create firework
-    pub fn new(&mut self, sx: f32, sy: f32, tx: f32, ty: f32, 
+    pub fn new(sx: f32, sy: f32, tx: f32, ty: f32, 
         trail_len: i32, rng: &mut ThreadRng) -> Self {
         // distance for firework to reach target point
-        let dist_to_target:f32 = self.compute_dist(sx, sy, tx, ty);
+        let dist_to_target:f32 = Firework::compute_dist(sx, sy, tx, ty);
         
         // determine the angle to shoot firework to target point
         let x_diff = tx - sx;
@@ -69,7 +69,7 @@ impl Firework {
         }
     }
 
-    pub fn update(&mut self, i:usize, model:&mut Model) 
+    pub fn update(i:usize, model:&mut Model) 
     {
         let firework = &mut model.fireworks[i];
 
@@ -94,7 +94,7 @@ impl Firework {
         let vy = firework.angle.sin() * firework.speed;
 
         // determine how far have the firework has traveled with velocities applied
-        firework.dist_traveled = self.compute_dist( firework.sx, firework.sy,
+        firework.dist_traveled = Firework::compute_dist( firework.sx, firework.sy,
             firework.x + vx, firework.y + vy);
 
         // if the distance traveled is greater than the initial distance to target, 
@@ -109,7 +109,27 @@ impl Firework {
         }
     }
 
-    pub fn create(&mut self, x: f32, y: f32, model: &mut Model) {
+    pub fn draw(draw:&Draw, i: usize, model: &Model) {
+        let firework = &model.fireworks[i];
+
+        // move to last tracked coordinate in the set, then draw a line to current x and y
+        let last = firework.coords.len() - 1;
+        draw.line()
+            .start(pt2(firework.coords[last][0], firework.coords[last][1]))
+            .end(pt2(firework.x, firework.y))
+            .weight(1.0)
+            .hsla(model.hue, 1.0, firework.brightness, 0.5);
+    
+        // draw the target for this firework with a pulsing circle
+        draw.ellipse()
+            .x_y(firework.tx, firework.ty)
+            .no_fill()
+            .radius(firework.target_radius)
+            .stroke_weight(1.0)
+            .stroke(hsla(model.hue, 1.0, firework.brightness, 0.7));
+    }
+
+    pub fn create(x: f32, y: f32, model: &mut Model) {
         // nannou's origin (0, 0) is at center of screen
         model.fireworks.push(Firework::new(
             0.0,                        // center of screen
@@ -117,13 +137,12 @@ impl Firework {
             x,
             y,  // upper part of the screen  
             5,  // trail_len
-            model.hue,
             &mut model.rng
         ));
     }
 
     // calculate euclidean distance
-    pub fn compute_dist(&mut self, p1x: f32, p1y: f32, p2x: f32, p2y: f32) -> f32 {
+    pub fn compute_dist(p1x: f32, p1y: f32, p2x: f32, p2y: f32) -> f32 {
         let x_dist = p1x - p2x;
         let y_dist = p1y - p2y;
 

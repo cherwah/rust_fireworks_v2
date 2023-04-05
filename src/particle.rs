@@ -52,7 +52,7 @@ impl Particle {
         }
     }
 
-    pub fn draw(&mut self, draw:&Draw, i:usize, model:&Model) {
+    pub fn draw(draw:&Draw, i:usize, model:&Model) {
         let particle = &model.particles[i];
     
         let last = particle.coords.len() - 1;
@@ -63,7 +63,7 @@ impl Particle {
             .hsla(particle.hue, 1.0, particle.brightness, particle.alpha);
     }
 
-    pub fn update(&mut self, i:usize, model: &mut Model) {
+    pub fn update(i:usize, model: &mut Model) {
         let particle = &mut model.particles[i];
     
         // remove last item in coordinates array
@@ -85,7 +85,7 @@ impl Particle {
         }
     }
 
-    pub fn create(&mut self, x: f32, y: f32, n_particles: i32, model: &mut Model) {
+    pub fn create(x: f32, y: f32, n_particles: i32, model: &mut Model) {
         for _ in 0..n_particles {
             model.particles.push(Particle::new(x, y, model.hue, 5, &mut model.rng));
         }
