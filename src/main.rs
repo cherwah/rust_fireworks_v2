@@ -61,19 +61,8 @@ fn model(app: &App) -> Model {
 
 // update states of the demo
 fn update(_app: &App, model: &mut Model, _update: Update) {  
-    // loop over each firework, update it
-    let mut i = model.fireworks.len();
-    while i > 0 {      
-        i -= 1;  
-        Firework::update(i, model);
-    }
-    
-    // loop over each particle, update it
-    let mut i = model.particles.len();
-    while i > 0 {      
-        i -= 1;  
-        Particle::update(i, model);
-    }
+    Firework::update(model);
+    Particle::update(model);
 
     // create new firework once timer_tick reaches limit
     if model.timer_tick >= model.timer_total {
@@ -95,7 +84,7 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
 // render view based on updated states (from update())
 fn view(app: &App, model: &Model, frame: Frame) {
     let draw = app.draw();
-    // draw.background().color(BLACK);
+
     draw.background().color(rgba(0.0, 0.0, 0.0, 0.5));
 
     let mut i = model.fireworks.len();

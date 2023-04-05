@@ -63,25 +63,31 @@ impl Particle {
             .hsla(particle.hue, 1.0, particle.brightness, particle.alpha);
     }
 
-    pub fn update(i:usize, model: &mut Model) {
-        let particle = &mut model.particles[i];
+    pub fn update(model: &mut Model) {
+        let mut i = model.particles.len();
+
+        while i > 0 {      
+            i -= 1;  
+
+            let particle = &mut model.particles[i];
     
-        // remove last item in coordinates array
-        particle.coords.pop();
-        // add current coordinates to the start of the array
-        particle.coords.insert(0, [particle.x, particle.y]);
-        // slow down the particle
-        particle.speed *= particle.friction;    
-         // // apply velocity
-        particle.x += particle.angle.cos() * particle.speed;
-        particle.y += particle.angle.sin() * particle.speed - particle.gravity;
+            // remove last item in coordinates array
+            particle.coords.pop();
+            // add current coordinates to the start of the array
+            particle.coords.insert(0, [particle.x, particle.y]);
+            // slow down the particle
+            particle.speed *= particle.friction;    
+            // // apply velocity
+            particle.x += particle.angle.cos() * particle.speed;
+            particle.y += particle.angle.sin() * particle.speed - particle.gravity;
     
-        // fade out the particle
-        particle.alpha -= particle.decay;
-        
-        // remove the particle once the alpha is low enough
-        if particle.alpha <= particle.decay {
-            model.particles.remove(i);
+            // fade out the particle
+            particle.alpha -= particle.decay;
+            
+            // remove the particle once the alpha is low enough
+            if particle.alpha <= particle.decay {
+                model.particles.remove(i);
+            }
         }
     }
 

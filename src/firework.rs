@@ -69,43 +69,49 @@ impl Firework {
         }
     }
 
-    pub fn update(i:usize, model:&mut Model) 
+    pub fn update(model:&mut Model) 
     {
-        let firework = &mut model.fireworks[i];
-
-        // remove last item in coordinates array
-        firework.coords.pop();
+        let mut i = model.fireworks.len();
         
-        // add current coordinates to the start of the array
-        firework.coords.insert(0, [firework.x, firework.y]);
-        
-        // cycle the circle target indicator radius
-        if firework.target_radius < 8.0 {
-            firework.target_radius += 0.3;
-        } else {
-            firework.target_radius = 1.0;
-        }        
-        
-        // speed up the firework to reach the pulsing target at each update interval
-        firework.speed *= firework.acceleration;
+        while i > 0 {      
+            i -= 1;  
 
-        // get x/y components based on angle and speed
-        let vx = firework.angle.cos() * firework.speed;
-        let vy = firework.angle.sin() * firework.speed;
+            let firework = &mut model.fireworks[i];
 
-        // determine how far have the firework has traveled with velocities applied
-        firework.dist_traveled = Firework::compute_dist( firework.sx, firework.sy,
-            firework.x + vx, firework.y + vy);
+            // remove last item in coordinates array
+            firework.coords.pop();
+            
+            // add current coordinates to the start of the array
+            firework.coords.insert(0, [firework.x, firework.y]);
+            
+            // cycle the circle target indicator radius
+            if firework.target_radius < 8.0 {
+                firework.target_radius += 0.3;
+            } else {
+                firework.target_radius = 1.0;
+            }        
+            
+            // speed up the firework to reach the pulsing target at each update interval
+            firework.speed *= firework.acceleration;
 
-        // if the distance traveled is greater than the initial distance to target, 
-        // then target has been reached
-        if firework.dist_traveled >= firework.dist_to_target {
-            Particle::create(firework.tx, firework.ty, 100, model);
-            model.fireworks.remove(i);
-        } else {
-            // target not reached, keep traveling
-            firework.x += vx;
-            firework.y += vy;
+            // get x/y components based on angle and speed
+            let vx = firework.angle.cos() * firework.speed;
+            let vy = firework.angle.sin() * firework.speed;
+
+            // determine how far have the firework has traveled with velocities applied
+            firework.dist_traveled = Firework::compute_dist( firework.sx, firework.sy,
+                firework.x + vx, firework.y + vy);
+
+            // if the distance traveled is greater than the initial distance to target, 
+            // then target has been reached
+            if firework.dist_traveled >= firework.dist_to_target {
+                Particle::create(firework.tx, firework.ty, 100, model);
+                model.fireworks.remove(i);
+            } else {
+                // target not reached, keep traveling
+                firework.x += vx;
+                firework.y += vy;
+            }
         }
     }
 
@@ -132,8 +138,8 @@ impl Firework {
     pub fn create(x: f32, y: f32, model: &mut Model) {
         // nannou's origin (0, 0) is at center of screen
         model.fireworks.push(Firework::new(
-            0.0,                        // center of screen
-            -((model.win_height >> 1) as f32),   // bottom of screen
+            0.0,                                // center of screen
+            -((model.win_height >> 1) as f32),  // bottom of screen
             x,
             y,  // upper part of the screen  
             5,  // trail_len
