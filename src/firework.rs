@@ -3,7 +3,6 @@ use crate::Particle;
 
 use nannou::prelude::*;
 use rand::Rng;
-use rand::rngs::ThreadRng;
 use core::f32;
 
 

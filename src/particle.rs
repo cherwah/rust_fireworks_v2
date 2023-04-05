@@ -1,10 +1,6 @@
 use crate::Model;
 use rand::Rng;
-use rand::rngs::ThreadRng;
-use rand::SeedableRng;
-use rand::rngs::StdRng;
 use nannou::prelude::*;
-use time::OffsetDateTime;
 
 
 pub struct Particle {
