@@ -1,7 +1,10 @@
 use crate::Model;
 use rand::Rng;
 use rand::rngs::ThreadRng;
+use rand::SeedableRng;
+use rand::rngs::StdRng;
 use nannou::prelude::*;
+use time::OffsetDateTime;
 
 
 pub struct Particle {
@@ -9,7 +12,7 @@ pub struct Particle {
     y: f32,
     // track the past coordinates of each particle to create a trail effect, increase 
     // the coordinate count to create more prominent trails
-    coords: Vec<[f32; 2]>,
+    trail_path: Vec<[f32; 2]>,
     // set a random angle in all possible directions, in radians
     angle: f32,
     speed: f32,
@@ -26,24 +29,22 @@ pub struct Particle {
 }
 
 impl Particle {
-    pub fn new(x: f32, y: f32, trail_len: i32, rng: &mut ThreadRng) -> Self {
+    pub fn new(x: f32, y: f32, trail_len: i32, rng: &mut StdRng) -> Self {
         // track the past coordinates of each particle to create a trail effect, 
         // increase the coordinate count to create more prominent trails
-        let mut coords:Vec<[f32; 2]> = Vec::new();
+        let mut trail_path:Vec<[f32; 2]> = Vec::new();
         for _ in 0..trail_len {
-            coords.push([x, y])
+            trail_path.push([x, y])
         }
 
         // hue ranges from 0 (0 degree) to 1.0 (360 degree)
         let hue_swing = 0.15;
 
-        // random hue as reference for swing
-        let hue = rng.gen_range(0.0..1.0);
+        // using a reference-hue for swing-range
+        let hue = rng.gen_range(0.15..0.85);
 
         return Particle {
-            x: x,
-            y: y,
-            coords: coords,
+            x, y, trail_path,
             angle: rng.gen_range(0.0..std::f32::consts::PI * 2.0),
             speed: rng.gen_range(1.0..10.0),
             friction: 0.95,
@@ -58,9 +59,12 @@ impl Particle {
     pub fn draw(draw:&Draw, i:usize, model:&Model) {
         let particle = &model.particles[i];
     
-        let last = particle.coords.len() - 1;
+        let last = particle.trail_path.len() - 1;
+
         draw.line()
-            .start(pt2(particle.coords[last][0], particle.coords[last][1]))
+            .start(pt2(particle.trail_path[last][0], 
+                       particle.trail_path[last][1])
+            )
             .end(pt2(particle.x, particle.y))
             .weight(1.0)
             .hsla(particle.hue, 1.0, particle.brightness, particle.alpha);
@@ -75,9 +79,9 @@ impl Particle {
             let particle = &mut model.particles[i];
     
             // remove last item in coordinates array
-            particle.coords.pop();
+            particle.trail_path.pop();
             // add current coordinates to the start of the array
-            particle.coords.insert(0, [particle.x, particle.y]);
+            particle.trail_path.insert(0, [particle.x, particle.y]);
             // slow down the particle
             particle.speed *= particle.friction;    
             // // apply velocity
@@ -96,7 +100,9 @@ impl Particle {
 
     pub fn create(x: f32, y: f32, n_particles: i32, model: &mut Model) {
 
-        let mut rng = rand::thread_rng();
+        let curr_time = OffsetDateTime::now_utc();
+
+        let mut rng = StdRng::seed_from_u64(curr_time.nanosecond() as u64);
 
         for _ in 0..n_particles {
             model.particles.push(Particle::new(x, y, 5, &mut rng));

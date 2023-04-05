@@ -22,7 +22,7 @@ pub struct Firework {
     dist_traveled: f32,
     // track the past coordinates of each firework to create a trail effect, 
     // increase the coordinate count to create more prominent trails
-    coords: Vec<[f32; 2]>,
+    trail_path: Vec<[f32; 2]>,
     // populate initial coordinate collection with the current coordinates
     angle: f32,
     speed: f32,
@@ -44,24 +44,20 @@ impl Firework {
         
         // store last k coordinates to simulate a trail
         // to hit the pulsing circle
-        let mut coords:Vec<[f32; 2]> = Vec::new();
+        let mut trail_path:Vec<[f32; 2]> = Vec::new();
 
         for _ in 0..trail_len {
-            coords.push([sx, sy]);
+            trail_path.push([sx, sy]);
         }
 
         let mut rng = rand::thread_rng();
 
         return Firework {
-            x: sx, 
-            y: sy, 
-            sx: sx, 
-            sy: sy, 
-            tx: tx, 
-            ty: ty,
-            dist_to_target: dist_to_target,
+            x: sx, y:sy, 
+            sx, sy, tx, ty,
+            dist_to_target,
             dist_traveled: 0.0,
-            coords: coords,            
+            trail_path,
             angle: y_diff.atan2(x_diff),
             speed: 2.0,
             acceleration: 1.05,
@@ -80,10 +76,10 @@ impl Firework {
             let firework = &mut model.fireworks[i];
 
             // remove last item in coordinates array
-            firework.coords.pop();
+            firework.trail_path.pop();
             
             // add current coordinates to the start of the array
-            firework.coords.insert(0, [firework.x, firework.y]);
+            firework.trail_path.insert(0, [firework.x, firework.y]);
             
             // cycle the circle target indicator radius
             if firework.target_radius < 8.0 {
@@ -124,9 +120,10 @@ impl Firework {
         let hue = rng.gen_range(0.0..=1.0);
 
         // move to last tracked coordinate in the set, then draw a line to current x and y
-        let last = firework.coords.len() - 1;
+        let last = firework.trail_path.len() - 1;
         draw.line()
-            .start(pt2(firework.coords[last][0], firework.coords[last][1]))
+            .start(pt2(firework.trail_path[last][0], 
+                       firework.trail_path[last][1]))
             .end(pt2(firework.x, firework.y))
             .weight(1.0)
             .hsla(hue, 1.0, firework.brightness, 0.5);
