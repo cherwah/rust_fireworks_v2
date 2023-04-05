@@ -28,6 +28,7 @@ pub struct Firework {
     speed: f32,
     acceleration: f32,
     brightness: f32,
+    hue: f32,
     // circle target indicator radius
     target_radius: f32 
 }
@@ -62,6 +63,7 @@ impl Firework {
             speed: 2.0,
             acceleration: 1.05,
             brightness: rng.gen_range(0.5..0.7),
+            hue: rng.gen_range(0.0..1.0),
             target_radius: 1.0
         }
     }
@@ -75,10 +77,10 @@ impl Firework {
 
             let firework = &mut model.fireworks[i];
 
-            // remove last item in coordinates array
+            // remove last item in trail buffer
             firework.trail_path.pop();
             
-            // add current coordinates to the start of the array
+            // add current coordinates to the start of the trail buffer
             firework.trail_path.insert(0, [firework.x, firework.y]);
             
             // cycle the circle target indicator radius
@@ -102,7 +104,7 @@ impl Firework {
             // if the distance traveled is greater than the initial distance to target, 
             // then target has been reached
             if firework.dist_traveled >= firework.dist_to_target {
-                Particle::create(firework.tx, firework.ty, 100, model);
+                Particle::create(firework.tx, firework.ty, 100, firework.hue, model);
                 model.fireworks.remove(i);
             } else {
                 // target not reached, keep traveling
@@ -113,12 +115,8 @@ impl Firework {
     }
 
     pub fn draw(draw:&Draw, i: usize, model: &Model) {
-        let mut rng = rand::thread_rng();
-
         let firework = &model.fireworks[i];
         
-        let hue = rng.gen_range(0.0..=1.0);
-
         // move to last tracked coordinate in the set, then draw a line to current x and y
         let last = firework.trail_path.len() - 1;
         draw.line()
@@ -126,7 +124,7 @@ impl Firework {
                        firework.trail_path[last][1]))
             .end(pt2(firework.x, firework.y))
             .weight(1.0)
-            .hsla(hue, 1.0, firework.brightness, 0.5);
+            .hsla(firework.hue, 1.0, firework.brightness, 0.5);
     
         // draw the target for this firework with a pulsing circle
         draw.ellipse()
@@ -134,7 +132,7 @@ impl Firework {
             .no_fill()
             .radius(firework.target_radius)
             .stroke_weight(1.0)
-            .stroke(hsla(hue, 1.0, firework.brightness, 0.7));
+            .stroke(hsla(firework.hue, 1.0, firework.brightness, 0.7));
     }
 
     pub fn spawn(model: &mut Model) {
@@ -144,7 +142,7 @@ impl Firework {
 
         Firework::create(
             rng.gen_range(-((model.win_width / 3) as f32)..(model.win_width / 3) as f32),
-            rng.gen_range(0..model.win_height / 3) as f32,
+            rng.gen_range(0..model.win_height / 3) as f32,  // top one-third of the screen
             model);        
     }
 

@@ -25,8 +25,6 @@ pub struct Model {
     particles: Vec<Particle>,   // particle collection
     timer_total: u8,            // total elasped time before reset
     timer_tick: u8,             // how much time has elasped
-    // hue: f32,                   // starting hue
-    // rng: ThreadRng
 }
 
 fn model(app: &App) -> Model {
@@ -54,8 +52,6 @@ fn model(app: &App) -> Model {
         particles: Vec::new(),
         timer_total: 5,
         timer_tick: 0,
-        // hue: rng.gen_range(0.0..=1.0),
-        // rng
     }
 }
 

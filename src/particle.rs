@@ -29,7 +29,9 @@ pub struct Particle {
 }
 
 impl Particle {
-    pub fn new(x: f32, y: f32, trail_len: i32, rng: &mut StdRng) -> Self {
+    pub fn new(x: f32, y: f32, trail_len: i32, hue: f32) -> Self {
+        let mut rng = rand::thread_rng();
+
         // track the past coordinates of each particle to create a trail effect, 
         // increase the coordinate count to create more prominent trails
         let mut trail_path:Vec<[f32; 2]> = Vec::new();
@@ -39,9 +41,6 @@ impl Particle {
 
         // hue ranges from 0 (0 degree) to 1.0 (360 degree)
         let hue_swing = 0.15;
-
-        // using a reference-hue for swing-range
-        let hue = rng.gen_range(0.15..0.85);
 
         return Particle {
             x, y, trail_path,
@@ -78,9 +77,9 @@ impl Particle {
 
             let particle = &mut model.particles[i];
     
-            // remove last item in coordinates array
+            // remove last item from the trail buffer
             particle.trail_path.pop();
-            // add current coordinates to the start of the array
+            // add current coordinates to the start of the trail buffer
             particle.trail_path.insert(0, [particle.x, particle.y]);
             // slow down the particle
             particle.speed *= particle.friction;    
@@ -98,14 +97,9 @@ impl Particle {
         }
     }
 
-    pub fn create(x: f32, y: f32, n_particles: i32, model: &mut Model) {
-
-        let curr_time = OffsetDateTime::now_utc();
-
-        let mut rng = StdRng::seed_from_u64(curr_time.nanosecond() as u64);
-
+    pub fn create(x: f32, y: f32, n_particles: i32, hue: f32, model: &mut Model) {
         for _ in 0..n_particles {
-            model.particles.push(Particle::new(x, y, 5, &mut rng));
+            model.particles.push(Particle::new(x, y, 5, hue));
         }
     }
 }
