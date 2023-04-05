@@ -26,15 +26,13 @@ pub struct Particle {
 }
 
 impl Particle {
-    pub fn new(x: f32, y: f32, trail_len: i32) -> Self {
+    pub fn new(x: f32, y: f32, trail_len: i32, rng: &mut ThreadRng) -> Self {
         // track the past coordinates of each particle to create a trail effect, 
         // increase the coordinate count to create more prominent trails
         let mut coords:Vec<[f32; 2]> = Vec::new();
         for _ in 0..trail_len {
             coords.push([x, y])
         }
-
-        let mut rng = rand::thread_rng();
 
         // hue ranges from 0 (0 degree) to 1.0 (360 degree)
         let hue_swing = 0.15;
@@ -97,8 +95,11 @@ impl Particle {
     }
 
     pub fn create(x: f32, y: f32, n_particles: i32, model: &mut Model) {
+
+        let mut rng = rand::thread_rng();
+
         for _ in 0..n_particles {
-            model.particles.push(Particle::new(x, y, 5));
+            model.particles.push(Particle::new(x, y, 5, &mut rng));
         }
     }
 }

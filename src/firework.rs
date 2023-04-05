@@ -158,7 +158,7 @@ impl Firework {
             -((model.win_height >> 1) as f32),  // bottom of screen
             x,
             y,  // upper part of the screen  
-            5  // trail_len
+            3  // trail_len
         ));
     }
 
