@@ -25,8 +25,8 @@ pub struct Model {
     particles: Vec<Particle>,   // particle collection
     timer_total: u8,            // total elasped time before reset
     timer_tick: u8,             // how much time has elasped
-    hue: f32,                   // starting hue
-    rng: ThreadRng
+    // hue: f32,                   // starting hue
+    // rng: ThreadRng
 }
 
 fn model(app: &App) -> Model {
@@ -42,7 +42,7 @@ fn model(app: &App) -> Model {
         .unwrap();
 
     // random generator
-    let mut rng = rand::thread_rng();
+    // let mut rng = rand::thread_rng();
 
     // our model stores program states as such the
     // current particles and fireworks
@@ -54,8 +54,8 @@ fn model(app: &App) -> Model {
         particles: Vec::new(),
         timer_total: 5,
         timer_tick: 0,
-        hue: rng.gen_range(0.0..=1.0),
-        rng
+        // hue: rng.gen_range(0.0..=1.0),
+        // rng
     }
 }
 
@@ -64,15 +64,10 @@ fn update(_app: &App, model: &mut Model, _update: Update) {
     Firework::update(model);
     Particle::update(model);
 
-    // create new firework once timer_tick reaches limit
-    if model.timer_tick >= model.timer_total {
-        model.hue = model.rng.gen_range(0.0..=1.0);
+    if model.timer_tick >= model.timer_total {       
+        // create more fireworks
+        Firework::spawn(model);
 
-        Firework::create(
-            model.rng.gen_range(-((model.win_width / 3) as f32)..(model.win_width / 3) as f32),
-            model.rng.gen_range(0..model.win_height / 3) as f32,
-            model);
-        
         // reset ticker
         model.timer_tick = 0;
     } else {

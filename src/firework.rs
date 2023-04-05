@@ -34,8 +34,7 @@ pub struct Firework {
 
 impl Firework {
     // create firework
-    pub fn new(sx: f32, sy: f32, tx: f32, ty: f32, 
-        trail_len: i32, rng: &mut ThreadRng) -> Self {
+    pub fn new(sx: f32, sy: f32, tx: f32, ty: f32, trail_len: i32) -> Self {
         // distance for firework to reach target point
         let dist_to_target:f32 = Firework::compute_dist(sx, sy, tx, ty);
         
@@ -50,6 +49,8 @@ impl Firework {
         for _ in 0..trail_len {
             coords.push([sx, sy]);
         }
+
+        let mut rng = rand::thread_rng();
 
         return Firework {
             x: sx, 
@@ -116,7 +117,11 @@ impl Firework {
     }
 
     pub fn draw(draw:&Draw, i: usize, model: &Model) {
+        let mut rng = rand::thread_rng();
+
         let firework = &model.fireworks[i];
+        
+        let hue = rng.gen_range(0.0..=1.0);
 
         // move to last tracked coordinate in the set, then draw a line to current x and y
         let last = firework.coords.len() - 1;
@@ -124,7 +129,7 @@ impl Firework {
             .start(pt2(firework.coords[last][0], firework.coords[last][1]))
             .end(pt2(firework.x, firework.y))
             .weight(1.0)
-            .hsla(model.hue, 1.0, firework.brightness, 0.5);
+            .hsla(hue, 1.0, firework.brightness, 0.5);
     
         // draw the target for this firework with a pulsing circle
         draw.ellipse()
@@ -132,7 +137,18 @@ impl Firework {
             .no_fill()
             .radius(firework.target_radius)
             .stroke_weight(1.0)
-            .stroke(hsla(model.hue, 1.0, firework.brightness, 0.7));
+            .stroke(hsla(hue, 1.0, firework.brightness, 0.7));
+    }
+
+    pub fn spawn(model: &mut Model) {
+        let mut rng = rand::thread_rng();
+
+        // model.hue = model.rng.gen_range(0.0..=1.0);
+
+        Firework::create(
+            rng.gen_range(-((model.win_width / 3) as f32)..(model.win_width / 3) as f32),
+            rng.gen_range(0..model.win_height / 3) as f32,
+            model);        
     }
 
     pub fn create(x: f32, y: f32, model: &mut Model) {
@@ -142,8 +158,7 @@ impl Firework {
             -((model.win_height >> 1) as f32),  // bottom of screen
             x,
             y,  // upper part of the screen  
-            5,  // trail_len
-            &mut model.rng
+            5  // trail_len
         ));
     }
 
