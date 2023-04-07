@@ -1,8 +1,6 @@
 use nannou::prelude::*;
 use nannou::event::WindowEvent;
 
-use rand::{Rng, rngs::ThreadRng};
-
 mod firework;
 mod particle;
 
@@ -38,9 +36,6 @@ fn model(app: &App) -> Model {
         .title("Fireworks Demo")
         .build()
         .unwrap();
-
-    // random generator
-    // let mut rng = rand::thread_rng();
 
     // our model stores program states as such the
     // current particles and fireworks

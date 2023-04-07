@@ -116,7 +116,9 @@ impl Firework {
     pub fn draw(draw:&Draw, i: usize, model: &Model) {
         let firework = &model.fireworks[i];
         
-        // move to last tracked coordinate in the set, then draw a line to current x and y
+        // move to last tracked coordinate in the set, then draw a line  to current 
+        // (x, y) of firework to simulate a trail path. trail_path[0] contains the 
+        // earliest unprocessed (x, y) for the firework.
         let last = firework.trail_path.len() - 1;
         draw.line()
             .start(pt2(firework.trail_path[last][0], 
@@ -137,16 +139,19 @@ impl Firework {
     pub fn spawn(model: &mut Model) {
         let mut rng = rand::thread_rng();
 
-        // model.hue = model.rng.gen_range(0.0..=1.0);
+        let left_min = -(model.win_width as f32 / 3.0);
+        let right_max = model.win_width as f32 / 3.0;
 
+        // firework to explode at (x, y) position
         Firework::create(
-            rng.gen_range(-((model.win_width / 3) as f32)..(model.win_width / 3) as f32),
-            rng.gen_range(0..model.win_height / 3) as f32,  // top one-third of the screen
+            rng.gen_range(left_min..right_max), // random x position within given limits
+            rng.gen_range(0.0..model.win_height as f32/ 3.0),  // top one-third of the screen
             model);        
     }
 
     pub fn create(x: f32, y: f32, model: &mut Model) {
         // nannou's origin (0, 0) is at center of screen
+        // firework shoots out at (sx, sy) position
         model.fireworks.push(Firework::new(
             0.0,                                // center of screen
             -((model.win_height >> 1) as f32),  // bottom of screen
