@@ -1,4 +1,5 @@
 use crate::Model;
+
 use rand::Rng;
 use nannou::prelude::*;
 

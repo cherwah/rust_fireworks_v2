@@ -1,5 +1,5 @@
 use crate::Model;
-use crate::Particle;
+use crate::particle::Particle;
 
 use nannou::prelude::*;
 use rand::Rng;
